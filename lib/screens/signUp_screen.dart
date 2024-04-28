@@ -1,6 +1,5 @@
 import 'dart:html';
 import 'dart:math';
-
 import 'package:app/screens/codeVerif_screen.dart';
 import 'package:app/screens/info_screen.dart';
 import 'package:app/screens/signIn_screen.dart';
@@ -30,23 +29,39 @@ class User {
 class _SignUpScreenState extends State<SignUpScreen> {
   final firestore = FirebaseFirestore.instance;
 
-  void showToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+  void showToast(String message, String type) {
+    if (type == "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else if (type == "error") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else if (type == "warning") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.amber[400],
+        ),
+      );
+    }
   }
 
-  Future<void> createUser(
-      String email, String password, String phoneNumber) async {
+  Future<void> createUser(String email, String password) async {
     try {
       final userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      showToast('Account created successfully!', 'success');
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -55,10 +70,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
     } on FirebaseAuthException catch (error) {
       // Handle Firebase Auth specific errors
-      showToast(error.message.toString()); // Call the showToast function here
+      showToast(error.message.toString(),
+          "error"); // Call the showToast function here
     } catch (error) {
       // Handle other errors
-      showToast('An unexpected error occurred.');
+      showToast('An unexpected error occurred.', "error");
     }
   }
 
@@ -278,7 +294,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: TextButton(
                     // ignore: sort_child_properties_last
                     child: const Text(
-                      'Send Code',
+                      'Sign Up',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -302,8 +318,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     onPressed: () async {
                       final email = _email.text;
                       final password = _password.text;
-                      final phoneNumber = _phoneNumber.text;
-                      await createUser(email, password, phoneNumber);
+                      await createUser(email, password);
                     },
                   ),
                 ),

@@ -1,67 +1,19 @@
+import 'dart:convert';
 import 'dart:js';
+import 'dart:math';
 
 import 'package:app/screens/codeVerif_screen.dart';
+import 'package:app/screens/home_bar_screen.dart';
 import 'package:app/screens/signUp_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
-  final firestore = FirebaseFirestore.instance;
-  
-  void showToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
-  Future<void> signIn(String email, String password) async {
-  try {
-    final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
 
-    // Navigate to the desired screen after successful login (optional)
-    // Navigator.pushReplacement(  // Replace with your desired screen
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const HomeScreen(),
-    //   ),
-    // );
-  } on FirebaseAuthException catch (error) {
-    String errorMessage;
-    switch (error.code) {
-      case 'user-not-found':
-        errorMessage = 'The email address is not registered.';
-        break;
-      case 'wrong-password':
-        errorMessage = 'The password is invalid.';
-        break;
-      case 'invalid-email':
-        errorMessage = 'The email address is invalid.';
-        break;
-      case 'user-disabled':
-        errorMessage = 'The user account has been disabled.';
-        break;
-      case 'too-many-requests':
-        errorMessage = 'Too many login attempts. Please try again later.';
-        break;
-      case 'operation-not-allowed':
-        errorMessage = 'Email and password login is not enabled.';
-        break;
-      default:
-        errorMessage = 'An error occurred during sign in.';
-    }
-    showToast(errorMessage);
-  } catch (error) {
-    showToast('An unexpected error occurred.');
-  }
-}
   @override
   _SignInScreenState createState() => _SignInScreenState();
 }
@@ -69,6 +21,61 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
+    final firestore = FirebaseFirestore.instance;
+    Future<void> storeSessionData(String userUId) async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('uid', userUId);
+    }
+
+   
+    void showToast(String message, String type) {
+      if (type == "success") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else if (type == "error") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else if (type == "warning") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.amber[400],
+          ),
+        );
+      }
+    }
+    Future<void> signIn(String email, String password) async {
+      try {
+        final userCredential =
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        await storeSessionData(userCredential.user!.uid);
+        showToast('You have been connected successfully!', 'success');
+        
+        Navigator.pushReplacement(
+          // Replace with your desired screen
+          context,
+          MaterialPageRoute(
+            builder: (context) => BottomBarPages(initialPage: 2),
+          ),
+        );
+      } on FirebaseAuthException catch (error) {
+        showToast(error.message.toString(), "error");
+      } catch (error) {
+        showToast('An unexpected error occurred.', "error");
+      }
+    }
+
     final TextEditingController _email = new TextEditingController();
     final TextEditingController _password = new TextEditingController();
     return Scaffold(
@@ -76,7 +83,9 @@ class _SignInScreenState extends State<SignInScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            height: MediaQuery.of(context).size.height, // Set a specific height for the container
+            height: MediaQuery.of(context)
+                .size
+                .height, // Set a specific height for the container
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -194,7 +203,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   width: MediaQuery.of(context).size.width - 40.0,
                   child: TextButton(
                     child: const Text(
-                      'Send Code',
+                      'Sign In',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -215,13 +224,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CodeVerifScreen(),
-                        ),
-                      );
+                    onPressed: () async {
+                      final email = _email.text;
+                      final password = _password.text;
+                      await signIn(email, password);
                     },
                   ),
                 ),
