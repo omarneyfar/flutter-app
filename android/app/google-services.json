@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "191086498053",
+    "project_id": "iit-flutter-app",
+    "storage_bucket": "iit-flutter-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191086498053:android:d5b7258d37299ffce4e76c",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_C6Fj68QqpJjWa38F7PMUN_a6HReFmXQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

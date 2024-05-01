@@ -1,0 +1,105 @@
+import 'package:flutter/material.dart';
+
+class BottomNavBar extends StatefulWidget {
+  final List<BottomNavItem> items;
+  final Function(int) onTap;
+  final int initialIndex;
+
+  BottomNavBar({required this.items, required this.onTap, this.initialIndex = 0});
+
+  @override
+  _BottomNavBarState createState() => _BottomNavBarState();
+}
+
+class _BottomNavBarState extends State<BottomNavBar> {
+  int _currentIndex = 2;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      child: Container(
+        height: kBottomNavigationBarHeight,
+        decoration: BoxDecoration(
+          color: Color(0xFF114388),
+           borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20), // Custom top-left border radius
+              topRight: Radius.circular(20), // Custom top-right border radius
+            ), // Custom background color
+        ),
+        
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: List.generate(
+            widget.items.length,
+            (index) => BottomNavBarItem(
+              item: widget.items[index],
+              isSelected: index == _currentIndex,
+              onTap: () {
+                setState(() {
+                  _currentIndex = index;
+                });
+                widget.onTap(index);
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BottomNavBarItem extends StatelessWidget {
+  final BottomNavItem item;
+  final bool isSelected;
+  final Function onTap;
+
+  BottomNavBarItem({required this.item, required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onTap(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              item.icon,
+              color: isSelected ? item.selectedColor : item.color,
+              size: 24, // Custom icon size
+            ),
+            SizedBox(height: 4),
+            Text(
+              item.label,
+              style: TextStyle(
+                color: isSelected ? item.selectedColor : item.color,
+                fontWeight: FontWeight.bold,
+                fontSize: 12, // Custom label font size
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BottomNavItem {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final Color selectedColor;
+
+  BottomNavItem({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.selectedColor,
+  });
+}
