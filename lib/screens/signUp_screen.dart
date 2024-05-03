@@ -1,5 +1,3 @@
-import 'dart:html';
-import 'dart:math';
 import 'package:app/screens/codeVerif_screen.dart';
 import 'package:app/screens/info_screen.dart';
 import 'package:app/screens/signIn_screen.dart';
@@ -28,7 +26,10 @@ class User {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final firestore = FirebaseFirestore.instance;
-
+  final TextEditingController _fullName = new TextEditingController();
+  final TextEditingController _email = new TextEditingController();
+  final TextEditingController _phoneNumber = new TextEditingController();
+  final TextEditingController _password = new TextEditingController();
   void showToast(String message, String type) {
     if (type == "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -80,11 +81,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController _fullName = new TextEditingController();
-    final TextEditingController _email = new TextEditingController();
-    final TextEditingController _phoneNumber = new TextEditingController();
-    final TextEditingController _password = new TextEditingController();
-
     return Scaffold(
         backgroundColor: const Color(0xFFF8F8FF),
         body: SafeArea(
@@ -371,25 +367,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         )));
   }
-  //  Future<void> generateOtp(String contact) async {
-  //   smsOTPSent(verId, forceResendingToken) {
-  //     verificationId = verId;
-  //   }
-  //   try {
-  //     await _auth.verifyPhoneNumber(
-  //       phoneNumber: contact,
-  //       codeAutoRetrievalTimeout: (String verId) {
-  //         verificationId = verId;
-  //       },
-  //       codeSent: smsOTPSent,
-  //       timeout: const Duration(seconds: 60),
-  //       verificationCompleted: (AuthCredential phoneAuthCredential) {},
-  //       verificationFailed: (error) {
-  //         print(error);
-  //       },
-  //     );
-  //   // ignore: empty_catches
-  //   } catch (e) {
-  //   }
-  // }
 }

@@ -1,7 +1,3 @@
-import 'dart:convert';
-import 'dart:js';
-import 'dart:math';
-
 import 'package:app/screens/codeVerif_screen.dart';
 import 'package:app/screens/home_bar_screen.dart';
 import 'package:app/screens/signUp_screen.dart';
@@ -10,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -19,6 +16,11 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  final TextEditingController email = TextEditingController();
+  final TextEditingController password = TextEditingController();
+
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+
   @override
   Widget build(BuildContext context) {
     final firestore = FirebaseFirestore.instance;
@@ -27,7 +29,6 @@ class _SignInScreenState extends State<SignInScreen> {
       await prefs.setString('uid', userUId);
     }
 
-   
     void showToast(String message, String type) {
       if (type == "success") {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -52,6 +53,9 @@ class _SignInScreenState extends State<SignInScreen> {
         );
       }
     }
+
+    ValueNotifier userCredential = ValueNotifier('');
+
     Future<void> signIn(String email, String password) async {
       try {
         final userCredential =
@@ -61,23 +65,52 @@ class _SignInScreenState extends State<SignInScreen> {
         );
         await storeSessionData(userCredential.user!.uid);
         showToast('You have been connected successfully!', 'success');
-        
+
         Navigator.pushReplacement(
-          // Replace with your desired screen
           context,
           MaterialPageRoute(
             builder: (context) => BottomBarPages(initialPage: 2),
           ),
         );
       } on FirebaseAuthException catch (error) {
+        print("firebase ,${error.message.toString()}");
         showToast(error.message.toString(), "error");
       } catch (error) {
         showToast('An unexpected error occurred.', "error");
       }
     }
 
-    final TextEditingController _email = new TextEditingController();
-    final TextEditingController _password = new TextEditingController();
+    Future<dynamic> signInWithGoogle() async {
+      try {
+        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+        final GoogleSignInAuthentication? googleAuth =
+            await googleUser?.authentication;
+
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth?.accessToken,
+          idToken: googleAuth?.idToken,
+        );
+
+        final userCredentialsValue =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+        await storeSessionData(userCredentialsValue.user!.uid);
+        showToast('You have been connected successfully!', 'success');
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BottomBarPages(initialPage: 2),
+          ),
+        );
+      } on Exception catch (e) {
+        showToast(e.toString(), "error");
+        print('exception->$e');
+      }
+    }
+
+    String currentEmail = ""; // Variable to store the current email value
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8FF),
       body: SafeArea(
@@ -99,7 +132,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   'Login',
                   style: TextStyle(fontSize: 36, fontFamily: "Medel"),
                 ),
-                const SizedBox(height: 57),
+                const SizedBox(height: 33),
                 const Text(
                   'Login with your Email and Password',
                   style: TextStyle(fontSize: 16, fontFamily: "Poppins"),
@@ -109,48 +142,44 @@ class _SignInScreenState extends State<SignInScreen> {
                   width: MediaQuery.of(context).size.width - 40.0,
                   child: Column(
                     children: [
-                      StatefulBuilder(
-                        builder: (context, setState) => TextField(
-                          style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                              fontFamily: "Poppins"),
-                          keyboardType: TextInputType.emailAddress,
-                          cursorColor: Colors.black,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            hintText: 'example@email.com',
-                            border: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.red, width: 3),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(300)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Color(0xFFD1D1D1), width: 1),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(300)),
-                            ),
-                            labelStyle: TextStyle(
-                              color: Color(0xFFD1D1D1),
-                            ),
-                            hintStyle: TextStyle(
-                              color: Color(0xFFD1D1D1),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 17),
-                            filled: true,
-                            fillColor: Color(0xFFFFFFFF),
+                      TextField(
+                        controller: email,
+                        style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                            fontFamily: "Poppins"),
+                        keyboardType: TextInputType.emailAddress,
+                        cursorColor: Colors.black,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          hintText: 'example@email.com',
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red, width: 3),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(300)),
                           ),
-                          onChanged: (value) => setState(() {
-                            _email.text = value;
-                          }),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Color(0xFFD1D1D1), width: 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(300)),
+                          ),
+                          labelStyle: TextStyle(
+                            color: Color(0xFFD1D1D1),
+                          ),
+                          hintStyle: TextStyle(
+                            color: Color(0xFFD1D1D1),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 17),
+                          filled: true,
+                          fillColor: Color(0xFFFFFFFF),
                         ),
                       ),
                       const SizedBox(height: 20),
                       StatefulBuilder(
                         builder: (context, setState) => TextField(
+                          controller: password,
                           style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -185,15 +214,51 @@ class _SignInScreenState extends State<SignInScreen> {
                             filled: true,
                             fillColor: Color(0xFFFFFFFF),
                           ),
-                          onChanged: (value) => setState(() {
-                            _password.text = value;
-                          }),
                         ),
                       ),
                       const SizedBox(height: 20),
                     ],
                   ),
                 ),
+                Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(300)),
+                    shape: BoxShape.rectangle,
+                  ),
+                  width: MediaQuery.of(context).size.width - 40.0,
+                  child: TextButton.icon(
+                    icon: Icon(Icons.account_circle), // Add a Google icon
+                    label: Text(
+                      'Sign in with Google',
+                      style: TextStyle(
+                        color: Color(0xFF114388),
+                        fontSize: 18,
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Color(0xFFFFFFFF),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 17.0,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(300.0),
+                        side: const BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                    onPressed: () async {
+                      userCredential.value = await signInWithGoogle();
+                      if (userCredential.value != null) {
+                        print("google ${userCredential.value.user!.uid}");
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
                 Container(
                   decoration: const BoxDecoration(
                     color: Colors.red,
@@ -225,9 +290,11 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                     onPressed: () async {
-                      final email = _email.text;
-                      final password = _password.text;
-                      await signIn(email, password);
+                      final emailValue = email.text;
+                      final passwordValue = password.text;
+                      print(
+                          "firebase , $emailValue $passwordValue"); // Print here after user types
+                      await signIn(emailValue, passwordValue);
                     },
                   ),
                 ),
