@@ -70,6 +70,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       );
     } on FirebaseAuthException catch (error) {
+      print(error);
       // Handle Firebase Auth specific errors
       showToast(error.message.toString(),
           "error"); // Call the showToast function here

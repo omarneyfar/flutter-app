@@ -18,7 +18,6 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
-
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
   @override
@@ -54,7 +53,6 @@ class _SignInScreenState extends State<SignInScreen> {
       }
     }
 
-    ValueNotifier userCredential = ValueNotifier('');
 
     Future<void> signIn(String email, String password) async {
       try {
@@ -108,8 +106,6 @@ class _SignInScreenState extends State<SignInScreen> {
         print('exception->$e');
       }
     }
-
-    String currentEmail = ""; // Variable to store the current email value
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8FF),
@@ -177,8 +173,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      StatefulBuilder(
-                        builder: (context, setState) => TextField(
+                      TextField(
                           controller: password,
                           style: const TextStyle(
                               fontSize: 14,
@@ -215,7 +210,6 @@ class _SignInScreenState extends State<SignInScreen> {
                             fillColor: Color(0xFFFFFFFF),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -251,10 +245,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                     onPressed: () async {
-                      userCredential.value = await signInWithGoogle();
-                      if (userCredential.value != null) {
-                        print("google ${userCredential.value.user!.uid}");
-                      }
+                       await signInWithGoogle();
                     },
                   ),
                 ),
@@ -292,8 +283,6 @@ class _SignInScreenState extends State<SignInScreen> {
                     onPressed: () async {
                       final emailValue = email.text;
                       final passwordValue = password.text;
-                      print(
-                          "firebase , $emailValue $passwordValue"); // Print here after user types
                       await signIn(emailValue, passwordValue);
                     },
                   ),

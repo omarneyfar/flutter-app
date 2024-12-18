@@ -21,7 +21,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
-
   );
   runApp(MyApp());
 }
@@ -93,7 +92,6 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/info': (context) => const InfoScreen(),
         '/singin': (context) => const SignInScreen(),
-        '/singin2': (context) =>  LoginDemo(),
         '/singup': (context) => const SignUpScreen(),
         '/codeVerif': (context) => const CodeVerifScreen(),
         '/notes': (context) => NotesPage(),

@@ -6,12 +6,13 @@ class NotesPage extends StatefulWidget {
 }
 
 class _NotesPageState extends State<NotesPage> {
-  String selectedYear = '2022'; // Default selected year
+  String selectedYear = '2024'; // Default selected year
 
   List<String> years = ['2022', '2023', '2024']; // List of available years
 
   Map<String, List<Map<String, dynamic>>> notes = {
-    '2022': [
+    '2022': [],
+    '2023': [
       {
         'semester': 'Semester 1',
         'subjects': [
@@ -55,11 +56,49 @@ class _NotesPageState extends State<NotesPage> {
         ],
       },
     ],
-    '2023': [
-      // Add notes for 2023
-    ],
-    '2024': [
-      // Add notes for 2024
+    '2024': [  
+      {
+        'semester': 'Semester 1',
+        'subjects': [
+          {
+            'name': 'Engineer Mathematics',
+            'notes': [
+              {'title': 'Note 1', 'details': 'Details about Note 1'},
+              {'title': 'Note 2', 'details': 'Details about Note 2'},
+              {'title': 'Note 3', 'details': 'Details about Note 3'},
+            ],
+          },
+          {
+            'name': 'Angular',
+            'notes': [
+              {'title': 'Note 4', 'details': 'Details about Note 4'},
+              {'title': 'Note 5', 'details': 'Details about Note 5'},
+              {'title': 'Note 6', 'details': 'Details about Note 6'},
+            ],
+          },
+        ],
+      },
+      {
+        'semester': 'Semester 2',
+        'subjects': [
+          {
+            'name': 'Web Components',
+            'notes': [
+              {'title': 'Note 7', 'details': 'Details about Note 7'},
+              {'title': 'Note 8', 'details': 'Details about Note 8'},
+              {'title': 'Note 9', 'details': 'Details about Note 9'},
+            ],
+          },
+          {
+            'name': 'UML',
+            'notes': [
+              {'title': 'Note 10', 'details': 'Details about Note 10'},
+              {'title': 'Note 11', 'details': 'Details about Note 11'},
+              {'title': 'Note 12', 'details': 'Details about Note 12'},
+            ],
+          },
+        ],
+      },
     ],
   };
 
